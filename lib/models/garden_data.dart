@@ -8,6 +8,8 @@ class GardenData {
   bool isPumpOn = false;
   bool isBuzzerOn = false;
   bool isManualMode = false;
+  int moistureThreshold = 30; // Add threshold property
+  int distanceThreshold = 30; // Add threshold property
   String _buffer = ''; // Buffer to accumulate partial JSON data
 
   // Parse JSON data from Arduino
@@ -49,6 +51,19 @@ class GardenData {
 
         if (json.containsKey('mode')) {
           isManualMode = json['mode'] == "Manual";
+        }
+
+        // Parse threshold values
+        if (json.containsKey('moisture_threshold')) {
+          moistureThreshold =
+              int.tryParse(json['moisture_threshold'].toString()) ??
+                  moistureThreshold;
+        }
+
+        if (json.containsKey('distance_threshold')) {
+          distanceThreshold =
+              int.tryParse(json['distance_threshold'].toString()) ??
+                  distanceThreshold;
         }
 
         // Clear buffer after successful parsing

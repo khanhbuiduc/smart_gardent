@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "626097842743",
+    "project_id": "smart-23dec",
+    "storage_bucket": "smart-23dec.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:626097842743:android:09ff772d9cbebbf05bedb2",
+        "android_client_info": {
+          "package_name": "com.example.flutter_blutooth"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjRg2ZqBxm0YjgiuS7DvMvTKJFB3dF8Qg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../models/garden_data.dart';
+import '../services/firebase_service.dart';
 
 class BluetoothService {
   // Bluetooth controller
@@ -23,6 +24,10 @@ class BluetoothService {
   // Garden data
   final GardenData gardenData = GardenData();
   String lastMessage = "";
+
+  // Firebase service
+  final FirebaseService _firebaseService = FirebaseService();
+  DateTime _lastDataSaved = DateTime.now().subtract(const Duration(minutes: 5));
 
   // Getters
   bool get bluetoothPermissionGranted => _bluetoothPermissionGranted;
@@ -222,6 +227,13 @@ class BluetoothService {
 
         lastMessage = incomingMessage;
         gardenData.updateFromString(incomingMessage);
+
+        // Save data to Firebase every 5 minutes
+        if (DateTime.now().difference(_lastDataSaved).inMinutes >= 5) {
+          _firebaseService.saveGardenData(gardenData);
+          _lastDataSaved = DateTime.now();
+        }
+
         _stateController.add(null);
       });
     } catch (e) {
@@ -287,6 +299,13 @@ class BluetoothService {
 
         lastMessage = incomingMessage;
         gardenData.updateFromString(incomingMessage);
+
+        // Save data to Firebase every 5 minutes
+        if (DateTime.now().difference(_lastDataSaved).inMinutes >= 5) {
+          _firebaseService.saveGardenData(gardenData);
+          _lastDataSaved = DateTime.now();
+        }
+
         _stateController.add(null);
       });
     } catch (e) {
@@ -456,6 +475,59 @@ class BluetoothService {
           SnackBar(content: Text('Lỗi khi chuyển đổi chế độ: $e')),
         );
       }
+    }
+  }
+
+  // Add these new methods to set thresholds
+  Future<void> setMoistureThreshold(int threshold, BuildContext context) async {
+    if (connection != null && connection!.isConnected) {
+      try {
+        String command = 'SM:$threshold';
+        connection!.output.add(Uint8List.fromList(utf8.encode(command)));
+        await connection!.output.allSent;
+
+        // Update local state immediately for better user feedback
+        gardenData.moistureThreshold = threshold;
+        _stateController.add(null);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Đã đặt ngưỡng độ ẩm đất: $threshold%')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Lỗi khi đặt ngưỡng độ ẩm đất: $e')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không có kết nối Bluetooth')),
+      );
+    }
+  }
+
+  Future<void> setDistanceThreshold(int threshold, BuildContext context) async {
+    if (connection != null && connection!.isConnected) {
+      try {
+        String command = 'SD:$threshold';
+        connection!.output.add(Uint8List.fromList(utf8.encode(command)));
+        await connection!.output.allSent;
+
+        // Update local state immediately for better user feedback
+        gardenData.distanceThreshold = threshold;
+        _stateController.add(null);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Đã đặt ngưỡng khoảng cách: $threshold cm')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Lỗi khi đặt ngưỡng khoảng cách: $e')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không có kết nối Bluetooth')),
+      );
     }
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import '../services/bluetooth_service.dart';
 import '../widgets/sensor_card.dart';
 import '../widgets/control_widget.dart';
+import 'analytics_screen.dart'; // Add this import
 
 class BluetoothApp extends StatefulWidget {
   const BluetoothApp({Key? key}) : super(key: key);
@@ -42,6 +43,18 @@ class _BluetoothAppState extends State<BluetoothApp> {
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
         actions: [
+          if (_bluetoothService.isConnected)
+            IconButton(
+              icon: const Icon(Icons.analytics),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const AnalyticsScreen()),
+                );
+              },
+              tooltip: 'Phân tích dữ liệu',
+            ),
           if (_bluetoothService.isConnected)
             IconButton(
               icon: const Icon(Icons.bluetooth_disabled),
@@ -377,6 +390,121 @@ class _BluetoothAppState extends State<BluetoothApp> {
               value: '${gardenData.distance.toStringAsFixed(1)} cm',
               icon: Icons.pets,
               color: Colors.cyan,
+            ),
+
+            const SizedBox(height: 24),
+
+            // Threshold Settings Card
+            Card(
+              color: Colors.amber.shade50,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    Text(
+                      'CÀI ĐẶT NGƯỠNG',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Moisture Threshold Slider
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Ngưỡng độ ẩm đất: ${gardenData.moistureThreshold}%',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                _bluetoothService.setMoistureThreshold(
+                                    gardenData.moistureThreshold, context);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 8),
+                                minimumSize: Size.zero,
+                              ),
+                              child: const Text('Lưu'),
+                            ),
+                          ],
+                        ),
+                        Slider(
+                          value: gardenData.moistureThreshold.toDouble(),
+                          min: 0,
+                          max: 100,
+                          divisions: 100,
+                          label: gardenData.moistureThreshold.toString(),
+                          onChanged: (value) {
+                            setState(() {
+                              gardenData.moistureThreshold = value.toInt();
+                            });
+                          },
+                        ),
+                        Text(
+                          'Bơm sẽ hoạt động khi độ ẩm dưới ${gardenData.moistureThreshold}%',
+                          style:
+                              const TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+
+                    const Divider(height: 24),
+
+                    // Distance Threshold Slider
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Ngưỡng khoảng cách: ${gardenData.distanceThreshold} cm',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                _bluetoothService.setDistanceThreshold(
+                                    gardenData.distanceThreshold, context);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 8),
+                                minimumSize: Size.zero,
+                              ),
+                              child: const Text('Lưu'),
+                            ),
+                          ],
+                        ),
+                        Slider(
+                          value: gardenData.distanceThreshold.toDouble(),
+                          min: 5,
+                          max: 100,
+                          divisions: 95,
+                          label: gardenData.distanceThreshold.toString(),
+                          onChanged: (value) {
+                            setState(() {
+                              gardenData.distanceThreshold = value.toInt();
+                            });
+                          },
+                        ),
+                        Text(
+                          'Còi báo sẽ kích hoạt khi phát hiện vật thể gần hơn ${gardenData.distanceThreshold} cm',
+                          style:
+                              const TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
 
             const SizedBox(height: 24),

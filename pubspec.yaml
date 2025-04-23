@@ -19,7 +19,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.5.4
+  sdk: ">=3.0.0 <4.0.0" # Fixed SDK constraint to a more realistic range
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -30,9 +30,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_bluetooth_serial: ^0.4.0 # Replace flutter_blue_plus with this
-  permission_handler: ^10.2.0
-  cupertino_icons: ^1.0.8
+  flutter_bluetooth_serial: ^0.4.0
+  permission_handler: ^10.0.0
+  cupertino_icons: ^1.0.5 # Updated to a more realistic version
+  firebase_core: ^2.15.0
+  firebase_auth: ^4.11.0
+  cloud_firestore: ^4.8.0 # Fixed version - should be 4.x.x, not 5.x.x
+  firebase_analytics: ^10.10.7
+  fl_chart: ^0.63.0
+  intl: ^0.18.0
 
 dev_dependencies:
   flutter_test:
